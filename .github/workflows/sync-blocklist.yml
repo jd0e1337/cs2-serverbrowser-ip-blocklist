@@ -1,0 +1,41 @@
+name: Sync public blocklists
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-blocklist-main
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test export rules
+        run: node --test scripts/sync-blocklist.test.mjs
+      - name: Download and validate full public snapshot
+        run: node scripts/sync-blocklist.mjs
+      - name: Commit changed addresses
+        shell: bash
+        run: |
+          git add -- blocklist.txt blocklist-with-restricted.txt
+          if git diff --cached --quiet; then
+            echo 'No address changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update public CS2 blocklists'
+          git push origin HEAD:main
