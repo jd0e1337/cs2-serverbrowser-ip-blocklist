@@ -10,4 +10,4 @@ GitHub Actions checks the [public API](https://www.cs2monitor.com/api/blocklist)
 
 The workflow can also be run manually under **Actions → Sync public blocklists → Run workflow**. It uses this repository's `GITHUB_TOKEN` with `contents: write`; branch rules must allow its pushes to `main`. No credentials for CS2monitor are required. Publishing these files does not automatically update anyone's Windows Firewall.
 
-Run `node --test scripts/sync-blocklist.test.mjs` to test the exporter, or `node scripts/sync-blocklist.mjs` to refresh both files locally (Node.js 22 or newer).
+The exporter is embedded directly in the GitHub Actions workflow.
